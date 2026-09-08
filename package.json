@@ -1,8 +1,15 @@
 {
-  "name": "mercabiliza-rd-eventos",
-  "version": "1.0.0",
-  "description": "Captação Summit Netlify para RD Station CRM",
+  "name": "mercabiliza-pre-diagnostico",
+  "private": true,
+  "description": "Formulários de diagnóstico Mercabiliza + integração com o RD Station CRM (Netlify Functions).",
   "scripts": {
-    "check": "node scripts/rd-crm-check.js"
+    "test": "node scripts/testar-parser.js",
+    "simular": "node scripts/simular-handler.js",
+    "simular:evento": "node scripts/simular-evento.js",
+    "smoke": "node scripts/smoke-evento.js",
+    "check:crm": "node scripts/rd-crm-check.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.1"
   }
 }
