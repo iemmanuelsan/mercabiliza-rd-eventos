@@ -31,5 +31,5 @@
 # o que evita 404 em QR code impresso.
 [[redirects]]
   from = "/evento"
-  to = "/evento/index.html"
-  status = 200
+  to = "/"
+  status = 301
