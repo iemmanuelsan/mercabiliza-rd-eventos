@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Diagnóstico Mercabiliza — Evento</title>
+<style>
+  :root{
+    --brand:#E6465E;          /* rosa da marca */
+    --brand-dark:#BE304A;     /* tom escuro da sobreposição do símbolo */
+    --brand-ink:#A82740;      /* para texto pequeno sobre branco */
+    --card:#fff;
+    --ink:#2E2A2C; --ink-soft:#6E6469;
+    --line:#E8E3E5; --accent:#E6465E; --accent-soft:#FDEDF0;
+    --ok:#12a150; --wa:#25d366; --wa-dark:#1da851; --radius:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none !important}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:linear-gradient(180deg,#2A2227 0%,#3B2C33 100%);
+    color:var(--ink);min-height:100vh;padding:0 0 40px;font-size:16px;line-height:1.5;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:0 16px}
+
+  header.top{text-align:center;padding:28px 16px 22px;color:#fff}
+  header.top .logo{display:block;width:100%;max-width:268px;height:auto;margin:0 auto}
+  header.top .slogan{margin:13px auto 0;max-width:330px;color:#F2D3DA;font-size:14.5px;font-weight:500;line-height:1.4}
+  header.top .evento{display:inline-block;margin:14px 0 0;padding:5px 13px;border-radius:99px;
+    background:rgba(230,70,94,.18);border:1px solid rgba(255,255,255,.22);color:#FFD9E1;
+    font-size:12.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
+  header.top h1{font-size:19px;margin:20px 0 6px;font-weight:700;letter-spacing:-.4px;color:#fff}
+  header.top p{margin:0;color:#C4B0B7;font-size:14px}
+
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:0 14px 44px rgba(30,12,18,.38);overflow:hidden}
+
+  .progress{padding:16px 20px 0}
+  .progress .bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+  .progress .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brand-dark),var(--brand));border-radius:99px;transition:width .35s ease}
+  .progress .meta{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);margin-top:8px;font-weight:600}
+
+  .step{display:none;padding:6px 20px 22px}
+  .step.active{display:block;animation:in .25s ease}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .step h2{font-size:19px;margin:14px 0 4px;letter-spacing:-.3px}
+  .step .hint{margin:0 0 18px;color:var(--ink-soft);font-size:14px}
+
+  .field{margin-bottom:18px}
+  .field.cond{animation:in .2s ease;border-left:3px solid var(--accent-soft);padding-left:13px;margin-left:1px}
+  .field > label.q{display:block;font-weight:650;font-size:15px;margin-bottom:8px}
+  .req{color:#e5484d}
+  .sub{display:block;font-weight:400;color:var(--ink-soft);font-size:13px;margin-top:2px}
+
+  input[type=text],input[type=email],input[type=tel],input[type=number],textarea,select{
+    width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;
+    font-size:16px;font-family:inherit;color:var(--ink);background:#fff;transition:border-color .15s,box-shadow .15s}
+  textarea{min-height:92px;resize:vertical}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+  .opts{display:grid;gap:8px}
+  .opt{display:flex;align-items:flex-start;gap:11px;border:1.5px solid var(--line);border-radius:10px;
+    padding:12px 13px;cursor:pointer;transition:border-color .15s,background .15s;background:#fff}
+  .opt:hover{border-color:#c3d2e8}
+  .opt input{margin:2px 0 0;width:19px;height:19px;accent-color:var(--accent);flex:none}
+  .opt span{font-size:15px}
+  .opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+
+  /* ---------- slider ---------- */
+  .slider{border:1.5px solid var(--line);border-radius:12px;padding:16px 16px 12px;background:#fbfcfe}
+  .slider .valor{text-align:center;font-size:26px;font-weight:800;letter-spacing:-.6px;color:var(--accent);
+    line-height:1.2;min-height:34px;transition:color .15s}
+  .slider .valor.off{color:#a8b6cc;font-size:16px;font-weight:600;letter-spacing:0;padding-top:6px}
+  .slider input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:34px;background:transparent;
+    margin:6px 0 2px;display:block;cursor:pointer}
+  .slider input[type=range]:focus{outline:none}
+  .slider input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:99px;
+    background:linear-gradient(90deg,var(--accent) var(--fill,0%),#dfe6f1 var(--fill,0%))}
+  .slider input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:28px;height:28px;
+    border-radius:50%;background:#fff;border:3px solid var(--accent);box-shadow:0 2px 8px rgba(230,70,94,.38);margin-top:-10px}
+  .slider input[type=range]::-moz-range-track{height:8px;border-radius:99px;background:#dfe6f1}
+  .slider input[type=range]::-moz-range-progress{height:8px;border-radius:99px;background:var(--accent)}
+  .slider input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;
+    border:3px solid var(--accent);box-shadow:0 2px 8px rgba(230,70,94,.38)}
+  .slider .extremos{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);font-weight:600}
+
+  .err{color:#e5484d;font-size:13px;margin-top:6px;display:none;font-weight:600}
+  .field.invalid .err{display:block}
+  .field.invalid input,.field.invalid textarea,.field.invalid .slider{border-color:#e5484d}
+
+  /* ---------- autocomplete de cidade ---------- */
+  .combo{position:relative}
+  .sugestoes{list-style:none;margin:4px 0 0;padding:6px;position:absolute;left:0;right:0;z-index:30;
+    background:#fff;border:1.5px solid var(--accent);border-radius:10px;box-shadow:0 10px 28px rgba(60,20,32,.18);
+    max-height:246px;overflow:auto}
+  .sugestoes li{padding:11px 12px;border-radius:8px;font-size:15px;cursor:pointer;line-height:1.3}
+  .sugestoes li .uf{color:var(--ink-soft);font-size:13px;font-weight:600;margin-left:4px}
+  .sugestoes li:hover,.sugestoes li.on{background:var(--accent-soft)}
+  .sugestoes li mark{background:none;color:var(--brand-ink);font-weight:800}
+  .sugestoes .vazio{color:var(--ink-soft);font-size:13.5px;cursor:default;padding:10px 12px}
+  .sugestoes .vazio:hover{background:none}
+
+  .cnpjbox{margin-top:10px;border-radius:10px;padding:12px 14px;font-size:13.5px;display:none}
+  .cnpjbox.show{display:block}
+  .cnpjbox.load{background:#f2f6fc;border:1px solid var(--line);color:var(--ink-soft)}
+  .cnpjbox.ok{background:#f4fbf7;border:1px solid #bfeed2;color:#14603c}
+  .cnpjbox.warn{background:#fff8ec;border:1px solid #f2d9a8;color:#7a5410}
+  .cnpjbox b{display:block;font-size:15px;margin-bottom:4px;color:inherit}
+  .cnpjbox .row{display:flex;gap:6px;margin-top:2px}
+  .cnpjbox .row span:first-child{opacity:.75;flex:none}
+  .spin{display:inline-block;width:13px;height:13px;border:2px solid #c9d6ea;border-top-color:var(--accent);
+    border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:7px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  .nav{display:flex;gap:10px;padding:0 20px 22px}
+  .btn{flex:1;padding:14px 18px;border-radius:10px;border:none;font-size:16px;font-weight:700;font-family:inherit;
+    cursor:pointer;transition:transform .08s,filter .15s;text-align:center;text-decoration:none;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px}
+  .btn:active{transform:scale(.985)}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:hover{filter:brightness(1.07)}
+  .btn-ghost{background:#fff;color:var(--ink-soft);border:1.5px solid var(--line);flex:0 0 34%}
+  .btn-wa{background:var(--wa);color:#fff;font-size:17px}
+  .btn-wa:hover{background:var(--wa-dark)}
+  .btn-link{background:transparent;color:var(--brand-ink);font-weight:650;font-size:14px;padding:10px}
+
+  .summary{background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:14px;
+    white-space:pre-wrap;word-break:break-word;max-height:320px;overflow:auto;color:#2a3852;line-height:1.6}
+  .summary b{color:var(--ink)}
+  .notice{display:flex;gap:10px;background:var(--accent-soft);border:1px solid #F6C6D0;color:var(--brand-ink);border-radius:10px;
+    padding:12px 14px;font-size:13.5px;margin:0 0 16px}
+  .notice .ic{flex:none;font-size:16px;line-height:1.3}
+
+  footer.bot{text-align:center;color:#B7A3AA;font-size:12px;padding:18px 16px 0}
+  .done{text-align:center;padding:30px 20px 26px}
+  .done .tick{width:62px;height:62px;border-radius:50%;background:var(--accent-soft);color:var(--brand);display:grid;place-items:center;font-size:32px;margin:0 auto 14px}
+  .done h2{margin:0 0 6px}
+  .done p{color:var(--ink-soft);margin:0 auto;max-width:400px;font-size:14.5px}
+
+  #config{display:none;padding:20px}
+  #config .out{background:#2A2227;color:#FFC2CE;padding:12px;border-radius:10px;font-size:12.5px;word-break:break-all;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin-top:10px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <img class="logo" alt="Mercabiliza — contabilidade para minimercados"
+         src="data:image/png;base64,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">
+    <p class="slogan">A única contabilidade especializada em minimercados autônomos</p>
+    <p class="evento" id="selo">Stand Mercabiliza</p>
+    <h1>Diagnóstico do seu minimercado</h1>
+    <p id="intro">Poucas perguntas — as próximas se adaptam ao que você responder.</p>
+  </header>
+
+  <div class="card">
+
+    <!-- PAINEL INTERNO (?config=1) -->
+    <div id="config">
+      <h2 style="margin-top:0">Gerador de link do evento</h2>
+      <p class="hint">Cada consultor gera o seu link do stand. O resumo volta direto na conversa dele
+         e o card entra no CRM com o prefixo do evento.</p>
+      <div class="field"><label class="q" for="cfgFone">Seu WhatsApp (DDI + DDD + número, só dígitos)</label>
+        <input type="tel" id="cfgFone" placeholder="5519998887777" inputmode="numeric"></div>
+      <div class="field"><label class="q" for="cfgNome">Seu nome (opcional)</label>
+        <input type="text" id="cfgNome" placeholder="Rafael"></div>
+      <div class="field"><label class="q" for="cfgEvento">Evento
+        <span class="sub">Vira o prefixo do card no CRM. Deixe como está se for o evento atual.</span></label>
+        <input type="text" id="cfgEvento" value="Summit" placeholder="Summit"></div>
+      <div class="field"><label class="q" for="cfgFoneCli">WhatsApp do cliente (opcional)
+        <span class="sub">É o número para quem você vai mandar este link. Vai direto para o
+        telefone do contato no CRM — o cliente não precisa digitar.</span></label>
+        <input type="tel" id="cfgFoneCli" placeholder="5519998887777" inputmode="numeric"></div>
+      <button class="btn btn-primary" id="cfgGerar" type="button">Gerar link</button>
+      <div class="out" id="cfgOut">—</div>
+      <button class="btn btn-link" id="cfgCopiar" type="button" style="margin-top:6px">Copiar link</button>
+    </div>
+
+    <div id="app">
+      <div class="progress">
+        <div class="bar"><i id="pbar"></i></div>
+        <div class="meta"><span id="pstep">Etapa 1</span><span id="ppct">0%</span></div>
+      </div>
+
+      <form id="form" novalidate>
+
+        <!-- ================= ETAPA 1 — CONTATO ================= -->
+        <section class="step active" data-step="1">
+          <h2>Vamos começar</h2>
+          <p class="hint">Só para sabermos com quem estamos falando.</p>
+
+          <div class="field" data-name="nome" data-resumo="Nome" data-req="1">
+            <label class="q" for="nome">Seu nome <span class="req">*</span></label>
+            <input type="text" id="nome" autocomplete="name" placeholder="Nome e sobrenome">
+            <div class="err">Por favor, informe seu nome.</div>
+          </div>
+
+          <div class="field" data-name="cidade" data-resumo="Cidade" data-req="1">
+            <label class="q" for="cidade">Cidade e estado <span class="req">*</span>
+              <span class="sub">Comece a digitar e escolha na lista.</span></label>
+            <div class="combo">
+              <input type="text" id="cidade" placeholder="Ex.: Campinas" autocomplete="off"
+                     role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="sugCidade">
+              <ul class="sugestoes" id="sugCidade" role="listbox" hidden></ul>
+            </div>
+            <div class="err">Por favor, informe cidade e estado.</div>
+          </div>
+
+          <div class="field" data-name="email" data-resumo="E-mail">
+            <label class="q" for="email">E-mail <span class="sub">Opcional — para enviarmos a proposta.</span></label>
+            <input type="email" id="email" autocomplete="email" placeholder="voce@empresa.com.br">
+            <div class="err">Esse e-mail parece incompleto.</div>
+          </div>
+        </section>
+
+        <!-- ================= ETAPA 2 — MINIMERCADO ================= -->
+        <section class="step" data-step="2">
+          <h2>Seu minimercado</h2>
+          <p class="hint">A partir daqui as perguntas mudam conforme sua resposta.</p>
+
+          <div class="field" data-name="temLoja" data-resumo="Já tem minimercado" data-req="1">
+            <label class="q">Você já possui minimercado autônomo? <span class="req">*</span></label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="temLoja" value="sim" data-label="Sim, já opera"><span>Sim</span></label>
+              <label class="opt"><input type="radio" name="temLoja" value="nao" data-label="Ainda não opera"><span>Não</span></label>
+            </div>
+            <div class="err">Escolha uma opção.</div>
+          </div>
+
+          <!-- ---------- RAMO SIM ---------- -->
+          <div class="field cond" data-name="operacao" data-resumo="Tipo de operação" data-req="1"
+               data-show="temLoja=sim" hidden>
+            <label class="q">É operação própria ou através de franquia/licença? <span class="req">*</span></label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="operacao" value="Operação própria" data-label="Operação própria"><span>Operação própria</span></label>
+              <label class="opt"><input type="radio" name="operacao" value="Franquia ou licença" data-label="Franquia ou licença"><span>Franquia ou licença</span></label>
+            </div>
+            <div class="err">Escolha uma opção.</div>
+          </div>
+
+          <div class="field cond" data-name="franquiaQual" data-resumo="Franquia / licença" data-req="1"
+               data-show="operacao=Franquia ou licença" hidden>
+            <label class="q" for="franquiaQual">Qual? <span class="req">*</span></label>
+            <input type="text" id="franquiaQual" placeholder="Nome da franquia ou licenciadora">
+            <div class="err">Informe o nome da franquia ou licença.</div>
+          </div>
+
+          <div class="field cond" data-name="qtdLojas" data-resumo="Quantidade de lojas" data-req="1"
+               data-show="temLoja=sim" hidden>
+            <label class="q">Quantos minimercados você tem hoje? <span class="req">*</span></label>
+            <div class="slider">
+              <div class="valor off" id="vQtd">Arraste a barra para responder</div>
+              <input type="range" id="qtdLojas" min="1" max="15" step="1" value="1" data-fmt="lojas">
+              <div class="extremos"><span>1 loja</span><span>+15 lojas</span></div>
+            </div>
+            <div class="err">Arraste a barra para informar a quantidade.</div>
+          </div>
+
+          <div class="field cond" data-name="faturamento" data-resumo="Faturamento mensal (total)" data-req="1"
+               data-show="temLoja=sim" hidden>
+            <label class="q">Qual o faturamento médio por mês, somando todas as lojas? <span class="req">*</span></label>
+            <div class="slider">
+              <div class="valor off" id="vFat">Arraste a barra para responder</div>
+              <input type="range" id="faturamento" min="0" max="26" step="1" value="9" data-fmt="reais">
+              <div class="extremos"><span>R$ 1 mil</span><span>+R$ 300 mil</span></div>
+            </div>
+            <div class="err">Arraste a barra para informar o faturamento.</div>
+          </div>
+
+          <div class="field cond" data-name="sistema" data-resumo="Sistema de gestão" data-req="1"
+               data-show="temLoja=sim" hidden>
+            <label class="q">Qual sistema de gestão você usa? <span class="req">*</span></label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="sistema" value="AMLabs" data-label="AMLabs"><span>AMLabs</span></label>
+              <label class="opt"><input type="radio" name="sistema" value="Outro" data-label="Outro"><span>Outro</span></label>
+              <label class="opt"><input type="radio" name="sistema" value="Não possuo" data-label="Não possui sistema"><span>Não possuo</span></label>
+            </div>
+            <div class="err">Escolha uma opção.</div>
+          </div>
+
+          <div class="field cond" data-name="nfce" data-resumo="Emite NFC-e" data-req="1"
+               data-show="temLoja=sim" hidden>
+            <label class="q">Você emite NFC-e nas lojas? <span class="req">*</span></label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="nfce" value="Sim" data-label="Sim, emite NFC-e"><span>Sim</span></label>
+              <label class="opt"><input type="radio" name="nfce" value="Não" data-label="Não emite NFC-e"><span>Não</span></label>
+              <label class="opt"><input type="radio" name="nfce" value="Não sei" data-label="Não sabe informar sobre NFC-e"><span>Não sei informar</span></label>
+            </div>
+            <div class="err">Escolha uma opção.</div>
+          </div>
+
+          <div class="field cond" data-name="localAtual" data-resumo="Onde ficam as lojas" data-req="1"
+               data-show="temLoja=sim" hidden>
+            <label class="q">Onde ficam esses minimercados? <span class="req">*</span>
+              <span class="sub">Pode marcar mais de uma.</span></label>
+            <div class="opts">
+              <label class="opt"><input type="checkbox" name="localAtual" value="Condomínio residencial" data-label="Condomínio residencial"><span>Condomínio residencial</span></label>
+              <label class="opt"><input type="checkbox" name="localAtual" value="Empresa, indústria ou escritório" data-label="Empresa, indústria ou escritório"><span>Empresa, indústria ou escritório</span></label>
+              <label class="opt"><input type="checkbox" name="localAtual" value="Loja de rua" data-label="Loja de rua"><span>Loja de rua</span></label>
+              <label class="opt"><input type="checkbox" name="localAtual" value="Outro" data-label="Outro"><span>Outro</span></label>
+            </div>
+            <div class="err">Marque pelo menos uma opção.</div>
+          </div>
+
+          <!-- ---------- RAMO NÃO ---------- -->
+          <div class="field cond" data-name="fase" data-resumo="Fase atual" data-req="1"
+               data-show="temLoja=nao" hidden>
+            <label class="q">Em qual fase você está? <span class="req">*</span></label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="fase" value="Pesquisando o mercado" data-label="Pesquisando o mercado"><span>Pesquisando o mercado</span></label>
+              <label class="opt"><input type="radio" name="fase" value="Prospectando local para a loja" data-label="Prospectando local para a loja"><span>Prospectando local para a loja</span></label>
+              <label class="opt"><input type="radio" name="fase" value="Perto de inaugurar" data-label="Perto de inaugurar"><span>Perto de inaugurar</span></label>
+            </div>
+            <div class="err">Escolha uma opção.</div>
+          </div>
+
+          <div class="field cond" data-name="prazoOperar" data-resumo="Prazo para operar" data-req="1"
+               data-show="temLoja=nao" hidden>
+            <label class="q">Em quanto tempo pretende ter uma loja operando? <span class="req">*</span></label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="prazoOperar" value="Até 30 dias" data-label="Até 30 dias"><span>Até 30 dias</span></label>
+              <label class="opt"><input type="radio" name="prazoOperar" value="2 meses" data-label="2 meses"><span>2 meses</span></label>
+              <label class="opt"><input type="radio" name="prazoOperar" value="3 meses" data-label="3 meses"><span>3 meses</span></label>
+              <label class="opt"><input type="radio" name="prazoOperar" value="Mais de 3 meses" data-label="Mais de 3 meses"><span>Mais de 3 meses</span></label>
+            </div>
+            <div class="err">Escolha uma opção.</div>
+          </div>
+
+          <div class="field cond" data-name="operacaoFuturo" data-resumo="Tipo de operação" data-req="1"
+               data-show="temLoja=nao" hidden>
+            <label class="q">Já definiu se será operação própria ou franquia/licença? <span class="req">*</span></label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="operacaoFuturo" value="Operação própria" data-label="Operação própria"><span>Operação própria</span></label>
+              <label class="opt"><input type="radio" name="operacaoFuturo" value="Franquia ou licença" data-label="Franquia ou licença"><span>Franquia ou licença</span></label>
+              <label class="opt"><input type="radio" name="operacaoFuturo" value="Ainda não defini" data-label="Ainda não definiu"><span>Ainda não defini</span></label>
+            </div>
+            <div class="err">Escolha uma opção.</div>
+          </div>
+
+          <div class="field cond" data-name="franquiaQualFuturo" data-resumo="Franquia / licença" data-req="1"
+               data-show="operacaoFuturo=Franquia ou licença" hidden>
+            <label class="q" for="franquiaQualFuturo">Qual? <span class="req">*</span></label>
+            <input type="text" id="franquiaQualFuturo" placeholder="Nome da franquia ou licenciadora">
+            <div class="err">Informe o nome da franquia ou licença.</div>
+          </div>
+
+          <div class="field cond" data-name="localFuturo" data-resumo="Onde ficarão as lojas" data-req="1"
+               data-show="temLoja=nao" hidden>
+            <label class="q">Onde ficarão essas lojas? <span class="req">*</span>
+              <span class="sub">Pode marcar mais de uma.</span></label>
+            <div class="opts">
+              <label class="opt"><input type="checkbox" name="localFuturo" value="Condomínio residencial" data-label="Condomínio residencial"><span>Condomínio residencial</span></label>
+              <label class="opt"><input type="checkbox" name="localFuturo" value="Empresa, indústria ou escritório" data-label="Empresa, indústria ou escritório"><span>Empresa, indústria ou escritório</span></label>
+              <label class="opt"><input type="checkbox" name="localFuturo" value="Loja de rua" data-label="Loja de rua"><span>Loja de rua</span></label>
+              <label class="opt"><input type="checkbox" name="localFuturo" value="Outro" data-label="Outro"><span>Outro</span></label>
+              <label class="opt"><input type="checkbox" name="localFuturo" value="Não definido" data-label="Não definido"><span>Não definido</span></label>
+            </div>
+            <div class="err">Marque pelo menos uma opção.</div>
+          </div>
+        </section>
+
+        <!-- ================= ETAPA 3 — PRIORIDADE ================= -->
+        <section class="step" data-step="3">
+          <h2>O que mais importa para você?</h2>
+          <p class="hint">Escolha o ponto mais decisivo na hora de escolher uma contabilidade.</p>
+
+          <div class="field" data-name="prioridade" data-resumo="Prioridade" data-req="1">
+            <label class="q">Selecione uma opção <span class="req">*</span></label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="prioridade" value="Eficiência tributária" data-label="Eficiência tributária (pagar menos impostos)"><span>Eficiência tributária <span class="sub">Pagar menos impostos</span></span></label>
+              <label class="opt"><input type="radio" name="prioridade" value="Rapidez no atendimento" data-label="Rapidez no atendimento"><span>Rapidez no atendimento</span></label>
+              <label class="opt"><input type="radio" name="prioridade" value="Apoio e consultoria" data-label="Apoio e consultoria"><span>Apoio e consultoria</span></label>
+              <label class="opt"><input type="radio" name="prioridade" value="Estrutura empresarial" data-label="Estrutura empresarial (para expandir o negócio)"><span>Estrutura empresarial <span class="sub">Para expandir meu negócio</span></span></label>
+              <label class="opt"><input type="radio" name="prioridade" value="Preço da mensalidade" data-label="Preço da mensalidade"><span>Preço da mensalidade</span></label>
+              <label class="opt"><input type="radio" name="prioridade" value="Regularização com a reforma tributária" data-label="Regularização de acordo com as mudanças da reforma tributária"><span>Regularização de acordo com as mudanças da reforma tributária</span></label>
+            </div>
+            <div class="err">Escolha uma opção.</div>
+          </div>
+        </section>
+
+        <!-- ================= ETAPA 4 — EMPRESA ================= -->
+        <section class="step" data-step="4">
+          <h2>Sua empresa</h2>
+          <p class="hint">Última etapa.</p>
+
+          <div class="field" data-name="temEmpresa" data-resumo="Empresa aberta" data-req="1">
+            <label class="q">Você já possui empresa aberta? <span class="req">*</span></label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="temEmpresa" value="sim" data-label="Sim, tem CNPJ"><span>Sim</span></label>
+              <label class="opt"><input type="radio" name="temEmpresa" value="nao" data-label="Não tem empresa aberta"><span>Não</span></label>
+            </div>
+            <div class="err">Escolha uma opção.</div>
+          </div>
+
+          <div class="field cond" data-name="regime" data-resumo="Regime tributário" data-req="1"
+               data-show="temEmpresa=sim" hidden>
+            <label class="q">Qual o regime tributário? <span class="req">*</span></label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="regime" value="MEI" data-label="MEI"><span>MEI</span></label>
+              <label class="opt"><input type="radio" name="regime" value="Simples Nacional" data-label="Simples Nacional"><span>Simples Nacional</span></label>
+              <label class="opt"><input type="radio" name="regime" value="Lucro Presumido" data-label="Lucro Presumido"><span>Lucro Presumido</span></label>
+              <label class="opt"><input type="radio" name="regime" value="Lucro Real" data-label="Lucro Real"><span>Lucro Real</span></label>
+            </div>
+            <div class="err">Escolha uma opção.</div>
+          </div>
+
+          <div class="field cond" data-name="cnpj" data-resumo="CNPJ"
+               data-show="temEmpresa=sim;cnpjNaoSei!=1" hidden>
+            <label class="q" for="cnpj">Qual o CNPJ?
+              <span class="sub">Buscamos os dados na Receita para você não precisar digitar.</span></label>
+            <input type="tel" id="cnpj" inputmode="numeric" placeholder="00.000.000/0000-00" maxlength="18" autocomplete="off">
+            <div class="cnpjbox" id="cnpjbox"></div>
+            <div class="err">Esse CNPJ está incompleto ou inválido. Confira, ou marque "não sei informar" abaixo.</div>
+          </div>
+
+          <div class="field cond" data-name="cnpjNaoSei" data-resumo="CNPJ"
+               data-show="temEmpresa=sim" hidden>
+            <div class="opts">
+              <label class="opt"><input type="checkbox" name="cnpjNaoSei" value="1" data-label="Cliente não soube informar"><span>Não sei informar o CNPJ agora</span></label>
+            </div>
+          </div>
+
+          <div class="field cond" data-name="outrosCnpjs" data-resumo="Outros CNPJs" data-req="1"
+               data-show="temEmpresa=sim" hidden>
+            <label class="q">Você possui outros CNPJs? <span class="req">*</span></label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="outrosCnpjs" value="Sim" data-label="Sim, tem outros CNPJs"><span>Sim</span></label>
+              <label class="opt"><input type="radio" name="outrosCnpjs" value="Não" data-label="Não, apenas um"><span>Não</span></label>
+            </div>
+            <div class="err">Escolha uma opção.</div>
+          </div>
+
+          <div class="field" data-name="temContador" data-resumo="Já tem contador" data-req="1">
+            <label class="q">Você já possui contador? <span class="req">*</span></label>
+            <div class="opts">
+              <label class="opt"><input type="radio" name="temContador" value="Sim" data-label="Sim, já tem contador"><span>Sim</span></label>
+              <label class="opt"><input type="radio" name="temContador" value="Não" data-label="Não tem contador"><span>Não</span></label>
+            </div>
+            <div class="err">Escolha uma opção.</div>
+          </div>
+        </section>
+
+        <!-- ================= RESUMO ================= -->
+        <section class="step" data-step="90">
+          <h2>Confira seu resumo</h2>
+          <p class="hint">Ao tocar no botão, o WhatsApp abre com esse texto pronto. Você só precisa <b>enviar</b>.</p>
+          <div class="notice"><span class="ic">✓</span><span>Nada é enviado sem você confirmar. O resumo vai pelo seu próprio WhatsApp.</span></div>
+          <div class="summary" id="preview"></div>
+        </section>
+
+        <!-- ================= FIM ================= -->
+        <section class="step" data-step="99">
+          <div class="done">
+            <div class="tick">✓</div>
+            <h2>Tudo certo!</h2>
+            <p>Se o WhatsApp não abriu automaticamente, toque no botão abaixo para enviar seu resumo.</p>
+          </div>
+        </section>
+
+        <div class="nav" id="nav">
+          <button type="button" class="btn btn-ghost" id="btnBack" style="display:none">Voltar</button>
+          <button type="button" class="btn btn-primary" id="btnNext">Continuar</button>
+          <a class="btn btn-wa" id="btnWa" style="display:none" href="#" rel="noopener">Enviar resumo no WhatsApp</a>
+        </div>
+        <div style="text-align:center;padding:0 20px 18px;display:none" id="copyWrap">
+          <button type="button" class="btn btn-link" id="btnCopy">Não abriu? Copiar o resumo</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <footer class="bot">
+    <p>Mercabiliza — contabilidade para minimercados autônomos<br>
+    Seus dados são usados apenas para o atendimento comercial.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     CONFIGURAÇÃO
+     NUMERO_PADRAO — WhatsApp que recebe o resumo quando o link
+       não traz ?t=. Formato: DDI + DDD + número, só dígitos.
+     WEBHOOK_URL — opcional. Se preenchido, envia as respostas em
+       JSON (ex.: fluxo do Power Automate gravando no SharePoint).
+     CONSULTAR_CNPJ — false desliga a busca na Receita.
+     CRM_ENDPOINT — Netlify Function que grava o lead no RD Station CRM.
+       Aqui aponta para o endpoint do EVENTO, que cria o card com o
+       prefixo [Summit] e a origem "Evento / Feira".
+     EVENTO_PADRAO — nome do evento. Vira o prefixo do card no CRM e o
+       texto da mensagem do WhatsApp. Para o próximo evento, troque só
+       esta linha (ou passe ?ev=Nome+do+Evento na URL).
+     ============================================================ */
+  var NUMERO_PADRAO  = '5519999999999';
+  var WEBHOOK_URL    = '';
+  var CONSULTAR_CNPJ = true;
+  var CRM_ENDPOINT   = '/.netlify/functions/evento-diagnostico';
+  var EVENTO_PADRAO  = 'Summit';
+
+  var params    = new URLSearchParams(location.search);
+  var destino   = (params.get('t') || NUMERO_PADRAO).replace(/\D/g,'');
+  var consultor = (params.get('n') || '').trim();
+  /* ?ev= — permite reaproveitar esta mesma página no próximo evento sem
+     tocar no código: basta gerar o link com &ev=APAS+Show. */
+  var evento    = (params.get('ev') || EVENTO_PADRAO).trim() || EVENTO_PADRAO;
+  /* ?c= — WhatsApp do cliente, preenchido pelo consultor na hora de gerar o
+     link (ele já tem o número na conversa). Nunca é exibido nem pedido ao
+     cliente: serve só para o telefone do contato no RD Station CRM. */
+  var telCliente = (params.get('c') || '').replace(/\D/g,'');
+
+  /* ---------- painel gerador de link ---------- */
+  if(params.get('config') === '1'){
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('config').style.display = 'block';
+    document.getElementById('intro').textContent = 'Modo interno — gere o link do stand para enviar aos clientes.';
+    var out = document.getElementById('cfgOut');
+    var base = location.origin + location.pathname;
+    document.getElementById('cfgGerar').addEventListener('click', function(){
+      var f = (document.getElementById('cfgFone').value || '').replace(/\D/g,'');
+      var n = (document.getElementById('cfgNome').value || '').trim();
+      var c = (document.getElementById('cfgFoneCli').value || '').replace(/\D/g,'');
+      if(f.length < 12){ out.textContent = 'Informe o número completo com DDI 55 e DDD. Ex.: 5519998887777'; return; }
+      if(c && c.length < 10){ out.textContent = 'O WhatsApp do cliente parece incompleto. Use DDD + número (com ou sem o 55).'; return; }
+      var ev = (document.getElementById('cfgEvento').value || '').trim();
+      out.textContent = base + '?t=' + f
+        + (n ? '&n=' + encodeURIComponent(n) : '')
+        + (c ? '&c=' + c : '')
+        + (ev && ev !== EVENTO_PADRAO ? '&ev=' + encodeURIComponent(ev) : '');
+    });
+    document.getElementById('cfgCopiar').addEventListener('click', function(){
+      var t = out.textContent; if(!t || t === '—') return; copiar(t, this, 'Link copiado!');
+    });
+    return;
+  }
+
+  /* Selo do evento no topo — é o que diz ao cliente (e ao consultor) que
+     este formulário é o do stand, não o do site. */
+  document.getElementById('selo').textContent = 'Stand Mercabiliza · ' + evento;
+  document.title = 'Diagnóstico Mercabiliza — ' + evento;
+
+  if(consultor){
+    document.getElementById('intro').textContent =
+      'Atendimento de ' + consultor + ' • as perguntas se adaptam às suas respostas.';
+  }
+
+  var steps   = Array.prototype.slice.call(document.querySelectorAll('.step'));
+  var pbar    = document.getElementById('pbar');
+  var pstep   = document.getElementById('pstep');
+  var ppct    = document.getElementById('ppct');
+  var btnNext = document.getElementById('btnNext');
+  var btnBack = document.getElementById('btnBack');
+  var btnWa   = document.getElementById('btnWa');
+  var btnCopy = document.getElementById('btnCopy');
+  var copyWrap= document.getElementById('copyWrap');
+  var preview = document.getElementById('preview');
+  var atual = 1, textoResumo = '', dadosReceita = null;
+
+  /* ============================================================
+     MOTOR DE CONDICIONAIS
+     data-show="campo=val1|val2"   → aparece se o campo tiver um dos valores
+     data-show="a=1;b=2"           → exige as duas condições
+     data-show="campo!=x"          → aparece quando NÃO for x
+     ============================================================ */
+  function valorDe(nome){
+    var m = document.querySelectorAll('[name="'+nome+'"]:checked');
+    if(m.length) return Array.prototype.map.call(m, function(i){ return i.value; });
+    var el = document.getElementById(nome);
+    return el ? [el.value] : [];
+  }
+  function condOk(expr){
+    return expr.split(';').every(function(parte){
+      var neg = parte.indexOf('!=') > -1;
+      var p   = parte.split(neg ? '!=' : '=');
+      var atuais  = valorDe(p[0].trim());
+      var aceitos = (p[1]||'').split('|').map(function(s){ return s.trim(); });
+      var bate = atuais.some(function(v){ return aceitos.indexOf(v) > -1; });
+      return neg ? !bate : bate;
+    });
+  }
+  function aplicarCondicionais(){
+    document.querySelectorAll('[data-show]').forEach(function(el){
+      var mostrar = condOk(el.dataset.show);
+      if(el.hidden === !mostrar) return;
+      el.hidden = !mostrar;
+      if(!mostrar) limpar(el);
+    });
+    atualizarProgresso();
+  }
+  function limpar(el){
+    el.querySelectorAll('input,textarea,select').forEach(function(i){
+      if(i.type === 'radio' || i.type === 'checkbox'){
+        i.checked = false;
+        var o = i.closest('.opt'); if(o) o.classList.remove('sel');
+      }else if(i.type === 'range'){
+        i.value = i.dataset.inicial; delete i.dataset.tocado; pintarSlider(i);
+      }else{ i.value = ''; }
+    });
+    if(el.classList && el.classList.contains('opt')){
+      var inp = el.querySelector('input');
+      if(inp){ inp.checked = false; el.classList.remove('sel'); }
+    }
+    if(el.querySelector && el.querySelector('#cnpj') && boxCnpj){
+      boxCnpj.className = 'cnpjbox'; boxCnpj.innerHTML = '';
+      dadosReceita = null; ultimoConsultado = '';
+    }
+    el.classList.remove('invalid');
+  }
+  function campoVisivel(f){
+    if(f.hidden) return false;
+    var p = f.parentElement;
+    while(p && p !== document.body){ if(p.hidden) return false; p = p.parentElement; }
+    return true;
+  }
+  function etapaTemCampo(sec){
+    return Array.prototype.some.call(sec.querySelectorAll('.field'), campoVisivel);
+  }
+  function etapasAtivas(){
+    return steps.filter(function(s){ return +s.dataset.step < 90 && etapaTemCampo(s); })
+                .map(function(s){ return +s.dataset.step; });
+  }
+
+  /* ============================================================
+     SLIDERS
+     Faturamento usa uma escala com mais resolução nas faixas
+     baixas, onde ficam MEI e Simples Nacional.
+     ============================================================ */
+  var ESCALA_FAT = [1,2,3,4,5,6,7,8,9,10,12,15,20,25,30,35,40,50,60,70,80,100,120,150,200,250,300];
+
+  function textoSlider(inp){
+    var v = +inp.value;
+    if(inp.dataset.fmt === 'lojas'){
+      if(v >= +inp.max) return '+15 lojas';
+      return v + (v === 1 ? ' loja' : ' lojas');
+    }
+    var mil = ESCALA_FAT[v];
+    var pre = (v >= +inp.max) ? '+' : '';
+    return pre + 'R$ ' + mil + ' mil / mês';
+  }
+  function pintarSlider(inp){
+    var pct = ((inp.value - inp.min) / (inp.max - inp.min)) * 100;
+    inp.style.setProperty('--fill', pct + '%');
+    var alvo = document.getElementById(inp.id === 'qtdLojas' ? 'vQtd' : 'vFat');
+    if(!alvo) return;
+    if(inp.dataset.tocado === '1'){
+      alvo.classList.remove('off');
+      alvo.textContent = textoSlider(inp);
+    }else{
+      alvo.classList.add('off');
+      alvo.textContent = 'Arraste a barra para responder';
+    }
+  }
+  document.querySelectorAll('input[type=range]').forEach(function(inp){
+    inp.dataset.inicial = inp.value;
+    pintarSlider(inp);
+    var marcar = function(){
+      inp.dataset.tocado = '1';
+      pintarSlider(inp);
+      var f = inp.closest('.field'); if(f) f.classList.remove('invalid');
+    };
+    inp.addEventListener('input', marcar);
+    inp.addEventListener('change', marcar);
+  });
+
+  /* ============================================================
+     CIDADE — autocomplete
+     Lista embutida (capitais + principais municípios) responde
+     instantaneamente, sem depender de internet. Em paralelo, a
+     base completa do IBGE (5.570 municípios) é carregada em
+     segundo plano e passa a alimentar as sugestões. Digitar
+     livremente continua permitido.
+     ============================================================ */
+  var CIDADES = ('Rio Branco/AC|Cruzeiro do Sul/AC|Sena Madureira/AC|Tarauacá/AC|Feijó/AC|Brasileia/AC|Epitaciolândia/AC|'+
+  'Maceió/AL|Arapiraca/AL|Rio Largo/AL|Palmeira dos Índios/AL|União dos Palmares/AL|Penedo/AL|São Miguel dos Campos/AL|Coruripe/AL|Marechal Deodoro/AL|Delmiro Gouveia/AL|Campo Alegre/AL|Santana do Ipanema/AL|'+
+  'Macapá/AP|Santana/AP|Laranjal do Jari/AP|Oiapoque/AP|Mazagão/AP|Porto Grande/AP|'+
+  'Manaus/AM|Parintins/AM|Itacoatiara/AM|Manacapuru/AM|Coari/AM|Tefé/AM|Tabatinga/AM|Maués/AM|Manicoré/AM|Humaitá/AM|Iranduba/AM|Presidente Figueiredo/AM|'+
+  'Salvador/BA|Feira de Santana/BA|Vitória da Conquista/BA|Camaçari/BA|Juazeiro/BA|Itabuna/BA|Lauro de Freitas/BA|Ilhéus/BA|Jequié/BA|Teixeira de Freitas/BA|Barreiras/BA|Alagoinhas/BA|Porto Seguro/BA|Simões Filho/BA|Paulo Afonso/BA|Eunápolis/BA|Santo Antônio de Jesus/BA|Valença/BA|Candeias/BA|Guanambi/BA|Jacobina/BA|Luís Eduardo Magalhães/BA|Brumado/BA|Bom Jesus da Lapa/BA|Itapetinga/BA|Dias d\'Ávila/BA|Serrinha/BA|Senhor do Bonfim/BA|Cruz das Almas/BA|Irecê/BA|'+
+  'Fortaleza/CE|Caucaia/CE|Juazeiro do Norte/CE|Maracanaú/CE|Sobral/CE|Crato/CE|Itapipoca/CE|Maranguape/CE|Iguatu/CE|Quixadá/CE|Pacatuba/CE|Aquiraz/CE|Canindé/CE|Crateús/CE|Russas/CE|Aracati/CE|Tianguá/CE|Cascavel/CE|Pacajus/CE|Horizonte/CE|Camocim/CE|'+
+  'Brasília/DF|'+
+  'Vitória/ES|Vila Velha/ES|Serra/ES|Cariacica/ES|Cachoeiro de Itapemirim/ES|Linhares/ES|São Mateus/ES|Colatina/ES|Guarapari/ES|Aracruz/ES|Viana/ES|Nova Venécia/ES|Barra de São Francisco/ES|Santa Teresa/ES|Domingos Martins/ES|Anchieta/ES|Marataízes/ES|'+
+  'Goiânia/GO|Aparecida de Goiânia/GO|Anápolis/GO|Rio Verde/GO|Luziânia/GO|Águas Lindas de Goiás/GO|Valparaíso de Goiás/GO|Trindade/GO|Formosa/GO|Novo Gama/GO|Itumbiara/GO|Senador Canedo/GO|Catalão/GO|Jataí/GO|Planaltina/GO|Caldas Novas/GO|Goianésia/GO|Cidade Ocidental/GO|Mineiros/GO|Inhumas/GO|Quirinópolis/GO|'+
+  'São Luís/MA|Imperatriz/MA|São José de Ribamar/MA|Timon/MA|Caxias/MA|Codó/MA|Paço do Lumiar/MA|Açailândia/MA|Bacabal/MA|Balsas/MA|Barra do Corda/MA|Santa Inês/MA|Pinheiro/MA|Chapadinha/MA|'+
+  'Cuiabá/MT|Várzea Grande/MT|Rondonópolis/MT|Sinop/MT|Tangará da Serra/MT|Cáceres/MT|Sorriso/MT|Lucas do Rio Verde/MT|Primavera do Leste/MT|Barra do Garças/MT|Alta Floresta/MT|Pontes e Lacerda/MT|Campo Verde/MT|Nova Mutum/MT|Juína/MT|Colíder/MT|'+
+  'Campo Grande/MS|Dourados/MS|Três Lagoas/MS|Corumbá/MS|Ponta Porã/MS|Naviraí/MS|Nova Andradina/MS|Sidrolândia/MS|Aquidauana/MS|Paranaíba/MS|Maracaju/MS|Coxim/MS|'+
+  'Belo Horizonte/MG|Uberlândia/MG|Contagem/MG|Juiz de Fora/MG|Betim/MG|Montes Claros/MG|Ribeirão das Neves/MG|Uberaba/MG|Governador Valadares/MG|Ipatinga/MG|Sete Lagoas/MG|Divinópolis/MG|Santa Luzia/MG|Ibirité/MG|Poços de Caldas/MG|Patos de Minas/MG|Pouso Alegre/MG|Teófilo Otoni/MG|Barbacena/MG|Sabará/MG|Varginha/MG|Conselheiro Lafaiete/MG|Vespasiano/MG|Itabira/MG|Araguari/MG|Passos/MG|Ubá/MG|Coronel Fabriciano/MG|Muriaé/MG|Araxá/MG|Lavras/MG|Itajubá/MG|Nova Lima/MG|São João del-Rei/MG|Alfenas/MG|Timóteo/MG|Formiga/MG|Ouro Preto/MG|Três Corações/MG|Cataguases/MG|Manhuaçu/MG|Curvelo/MG|João Monlevade/MG|Congonhas/MG|Itaúna/MG|Paracatu/MG|Unaí/MG|Frutal/MG|Guaxupé/MG|'+
+  'Belém/PA|Ananindeua/PA|Santarém/PA|Marabá/PA|Castanhal/PA|Parauapebas/PA|Abaetetuba/PA|Cametá/PA|Bragança/PA|Altamira/PA|Barcarena/PA|Tucuruí/PA|Itaituba/PA|Paragominas/PA|Redenção/PA|Breves/PA|Capanema/PA|'+
+  'João Pessoa/PB|Campina Grande/PB|Santa Rita/PB|Patos/PB|Bayeux/PB|Sousa/PB|Cajazeiras/PB|Cabedelo/PB|Guarabira/PB|Sapé/PB|Mamanguape/PB|Queimadas/PB|Monteiro/PB|'+
+  'Curitiba/PR|Londrina/PR|Maringá/PR|Ponta Grossa/PR|Cascavel/PR|São José dos Pinhais/PR|Foz do Iguaçu/PR|Colombo/PR|Guarapuava/PR|Paranaguá/PR|Araucária/PR|Toledo/PR|Apucarana/PR|Pinhais/PR|Campo Largo/PR|Arapongas/PR|Almirante Tamandaré/PR|Umuarama/PR|Piraquara/PR|Cambé/PR|Sarandi/PR|Fazenda Rio Grande/PR|Paranavaí/PR|Francisco Beltrão/PR|Pato Branco/PR|Cianorte/PR|Telêmaco Borba/PR|Castro/PR|Rolândia/PR|Irati/PR|União da Vitória/PR|Campo Mourão/PR|'+
+  'Recife/PE|Jaboatão dos Guararapes/PE|Olinda/PE|Caruaru/PE|Petrolina/PE|Paulista/PE|Cabo de Santo Agostinho/PE|Camaragibe/PE|Garanhuns/PE|Vitória de Santo Antão/PE|Igarassu/PE|São Lourenço da Mata/PE|Santa Cruz do Capibaribe/PE|Abreu e Lima/PE|Ipojuca/PE|Serra Talhada/PE|Araripina/PE|Gravatá/PE|Carpina/PE|Goiana/PE|Belo Jardim/PE|Arcoverde/PE|Timbaúba/PE|Bezerros/PE|'+
+  'Teresina/PI|Parnaíba/PI|Picos/PI|Piripiri/PI|Floriano/PI|Campo Maior/PI|Barras/PI|União/PI|Altos/PI|Pedro II/PI|Oeiras/PI|São Raimundo Nonato/PI|'+
+  'Rio de Janeiro/RJ|Niterói/RJ|Nova Iguaçu/RJ|Duque de Caxias/RJ|São Gonçalo/RJ|Campos dos Goytacazes/RJ|Belford Roxo/RJ|São João de Meriti/RJ|Petrópolis/RJ|Volta Redonda/RJ|Macaé/RJ|Magé/RJ|Itaboraí/RJ|Cabo Frio/RJ|Nova Friburgo/RJ|Barra Mansa/RJ|Angra dos Reis/RJ|Teresópolis/RJ|Mesquita/RJ|Nilópolis/RJ|Queimados/RJ|Resende/RJ|Araruama/RJ|Rio das Ostras/RJ|Armação dos Búzios/RJ|Maricá/RJ|Itaguaí/RJ|Japeri/RJ|Seropédica/RJ|Saquarema/RJ|Três Rios/RJ|Valença/RJ|'+
+  'Natal/RN|Mossoró/RN|Parnamirim/RN|São Gonçalo do Amarante/RN|Macaíba/RN|Ceará-Mirim/RN|Caicó/RN|Assu/RN|Currais Novos/RN|São José de Mipibu/RN|Nova Cruz/RN|Apodi/RN|Santa Cruz/RN|'+
+  'Porto Alegre/RS|Caxias do Sul/RS|Canoas/RS|Pelotas/RS|Santa Maria/RS|Gravataí/RS|Viamão/RS|Novo Hamburgo/RS|São Leopoldo/RS|Rio Grande/RS|Alvorada/RS|Passo Fundo/RS|Sapucaia do Sul/RS|Uruguaiana/RS|Santa Cruz do Sul/RS|Cachoeirinha/RS|Bagé/RS|Bento Gonçalves/RS|Erechim/RS|Guaíba/RS|Santana do Livramento/RS|Ijuí/RS|Sapiranga/RS|Santo Ângelo/RS|Alegrete/RS|Farroupilha/RS|Venâncio Aires/RS|Camaquã/RS|Montenegro/RS|Lajeado/RS|São Borja/RS|Carazinho/RS|Vacaria/RS|Esteio/RS|Cruz Alta/RS|Taquara/RS|Torres/RS|Gramado/RS|Canela/RS|'+
+  'Porto Velho/RO|Ji-Paraná/RO|Ariquemes/RO|Vilhena/RO|Cacoal/RO|Rolim de Moura/RO|Jaru/RO|Guajará-Mirim/RO|Pimenta Bueno/RO|Ouro Preto do Oeste/RO|Buritis/RO|'+
+  'Boa Vista/RR|Rorainópolis/RR|Caracaraí/RR|Mucajaí/RR|Alto Alegre/RR|Pacaraima/RR|'+
+  'Florianópolis/SC|Joinville/SC|Blumenau/SC|São José/SC|Chapecó/SC|Itajaí/SC|Criciúma/SC|Jaraguá do Sul/SC|Lages/SC|Palhoça/SC|Balneário Camboriú/SC|Brusque/SC|Tubarão/SC|São Bento do Sul/SC|Caçador/SC|Concórdia/SC|Camboriú/SC|Navegantes/SC|Rio do Sul/SC|Araranguá/SC|Gaspar/SC|Indaial/SC|Itapema/SC|Mafra/SC|Canoinhas/SC|Xanxerê/SC|Biguaçu/SC|Timbó/SC|Videira/SC|São Francisco do Sul/SC|Porto União/SC|'+
+  'São Paulo/SP|Guarulhos/SP|Campinas/SP|São Bernardo do Campo/SP|Santo André/SP|Osasco/SP|São José dos Campos/SP|Ribeirão Preto/SP|Sorocaba/SP|Santos/SP|Mauá/SP|São José do Rio Preto/SP|Mogi das Cruzes/SP|Diadema/SP|Jundiaí/SP|Carapicuíba/SP|Piracicaba/SP|Bauru/SP|Itaquaquecetuba/SP|São Vicente/SP|Franca/SP|Praia Grande/SP|Guarujá/SP|Taubaté/SP|Limeira/SP|Suzano/SP|Taboão da Serra/SP|Sumaré/SP|Barueri/SP|Embu das Artes/SP|São Carlos/SP|Marília/SP|Indaiatuba/SP|Cotia/SP|Americana/SP|Araraquara/SP|Jacareí/SP|Itapevi/SP|Hortolândia/SP|Rio Claro/SP|Presidente Prudente/SP|Araçatuba/SP|Ferraz de Vasconcelos/SP|Santa Bárbara d\'Oeste/SP|Francisco Morato/SP|Itapecerica da Serra/SP|Bragança Paulista/SP|Itu/SP|Pindamonhangaba/SP|São Caetano do Sul/SP|Mogi Guaçu/SP|Atibaia/SP|Franco da Rocha/SP|Jaú/SP|Botucatu/SP|Araras/SP|Salto/SP|Ourinhos/SP|Votorantim/SP|Valinhos/SP|Sertãozinho/SP|Birigui/SP|Catanduva/SP|Assis/SP|Tatuí/SP|Poá/SP|Caraguatatuba/SP|Ubatuba/SP|São Sebastião/SP|Campos do Jordão/SP|Vinhedo/SP|Paulínia/SP|Ibiúna/SP|Cabreúva/SP|Louveira/SP|Itatiba/SP|Nova Odessa/SP|'+
+  'Aracaju/SE|Nossa Senhora do Socorro/SE|Lagarto/SE|Itabaiana/SE|São Cristóvão/SE|Estância/SE|Tobias Barreto/SE|Itabaianinha/SE|Simão Dias/SE|Propriá/SE|Nossa Senhora da Glória/SE|'+
+  'Palmas/TO|Araguaína/TO|Gurupi/TO|Porto Nacional/TO|Paraíso do Tocantins/TO|Colinas do Tocantins/TO|Guaraí/TO|Tocantinópolis/TO|Dianópolis/TO').split('|');
+
+  var inpCidade = document.getElementById('cidade');
+  var boxSug    = document.getElementById('sugCidade');
+  var idxSug    = -1, itensSug = [], ibgeCarregado = false;
+
+  function semAcento(s){
+    return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
+           .replace(/['´`^~]/g,'').trim();
+  }
+
+  function carregarIbge(){
+    if(ibgeCarregado) return;
+    ibgeCarregado = true;
+    comTimeout('https://servicodados.ibge.gov.br/api/v1/localidades/municipios', 12000)
+      .then(function(lista){
+        if(!Array.isArray(lista) || !lista.length) return;
+        var vistos = {}, completa = [];
+        CIDADES.forEach(function(c){ vistos[semAcento(c)] = 1; });
+        lista.forEach(function(m){
+          var uf = '';
+          try{ uf = m.microrregiao.mesorregiao.UF.sigla; }catch(e){}
+          if(!uf){ try{ uf = m['regiao-imediata']['regiao-intermediaria'].UF.sigla; }catch(e){} }
+          if(!uf || !m.nome) return;
+          var item = m.nome + '/' + uf;
+          if(!vistos[semAcento(item)]){ vistos[semAcento(item)] = 1; completa.push(item); }
+        });
+        CIDADES = CIDADES.concat(completa);
+        if(inpCidade === document.activeElement) filtrarCidade();
+      })
+      .catch(function(){ /* segue com a lista embutida */ });
+  }
+
+  function filtrarCidade(){
+    var q = semAcento(inpCidade.value);
+    if(q.length < 2){ fecharSug(); return; }
+    var comeca = [], contem = [];
+    for(var i=0; i<CIDADES.length && comeca.length + contem.length < 60; i++){
+      var alvo = semAcento(CIDADES[i]);
+      var pos  = alvo.indexOf(q);
+      if(pos === 0) comeca.push(CIDADES[i]);
+      else if(pos > 0) contem.push(CIDADES[i]);
+    }
+    itensSug = comeca.concat(contem).slice(0, 8);
+    idxSug = -1;
+
+    if(!itensSug.length){
+      boxSug.innerHTML = '<li class="vazio">Nenhuma cidade encontrada. Você pode digitar livremente.</li>';
+      abrirSug();
+      return;
+    }
+    boxSug.innerHTML = itensSug.map(function(c){
+      var p = c.split('/');
+      var nome = p[0], alvo = semAcento(nome), pos = alvo.indexOf(q);
+      var marcado = pos > -1
+        ? nome.slice(0,pos) + '<mark>' + nome.slice(pos, pos+q.length) + '</mark>' + nome.slice(pos+q.length)
+        : nome;
+      return '<li role="option" data-valor="'+c.replace(/"/g,'&quot;')+'">'+marcado+
+             '<span class="uf">'+p[1]+'</span></li>';
+    }).join('');
+    abrirSug();
+  }
+  function abrirSug(){ boxSug.hidden = false; inpCidade.setAttribute('aria-expanded','true'); }
+  function fecharSug(){ boxSug.hidden = true; inpCidade.setAttribute('aria-expanded','false'); idxSug = -1; }
+  function marcarSug(){
+    Array.prototype.forEach.call(boxSug.querySelectorAll('li'), function(li,i){
+      li.classList.toggle('on', i === idxSug);
+      if(i === idxSug && li.scrollIntoView) li.scrollIntoView({block:'nearest'});
+    });
+  }
+  function escolher(valor){
+    inpCidade.value = valor.replace('/', ' / ');
+    fecharSug();
+    var f = inpCidade.closest('.field'); if(f) f.classList.remove('invalid');
+  }
+
+  if(inpCidade){
+    inpCidade.addEventListener('focus', function(){ carregarIbge(); if(inpCidade.value) filtrarCidade(); });
+    inpCidade.addEventListener('input', filtrarCidade);
+    inpCidade.addEventListener('keydown', function(e){
+      if(boxSug.hidden || !itensSug.length){
+        if(e.key === 'ArrowDown'){ filtrarCidade(); }
+        return;
+      }
+      if(e.key === 'ArrowDown'){ e.preventDefault(); idxSug = (idxSug+1) % itensSug.length; marcarSug(); }
+      else if(e.key === 'ArrowUp'){ e.preventDefault(); idxSug = (idxSug-1+itensSug.length) % itensSug.length; marcarSug(); }
+      else if(e.key === 'Enter'){ if(idxSug > -1){ e.preventDefault(); escolher(itensSug[idxSug]); } }
+      else if(e.key === 'Escape'){ fecharSug(); }
+      else if(e.key === 'Tab'){ fecharSug(); }
+    });
+    boxSug.addEventListener('mousedown', function(e){
+      var li = e.target.closest('li[data-valor]');
+      if(li){ e.preventDefault(); escolher(li.dataset.valor); }
+    });
+    document.addEventListener('click', function(e){
+      if(!e.target.closest || !e.target.closest('.combo')) fecharSug();
+    });
+  }
+
+  /* ---------- interação visual ---------- */
+  document.addEventListener('change', function(e){
+    var inp = e.target;
+    if(inp.matches && inp.matches('.opt input')){
+      if(inp.type === 'radio'){
+        document.querySelectorAll('input[name="'+inp.name+'"]').forEach(function(o){
+          o.closest('.opt').classList.toggle('sel', o.checked);
+        });
+      }else{ inp.closest('.opt').classList.toggle('sel', inp.checked); }
+    }
+    var f = inp.closest && inp.closest('.field');
+    if(f) f.classList.remove('invalid');
+    aplicarCondicionais();
+  });
+  document.addEventListener('input', function(e){
+    var f = e.target.closest && e.target.closest('.field');
+    if(f) f.classList.remove('invalid');
+  });
+
+  /* ============================================================
+     CNPJ — máscara, dígito verificador e consulta na Receita
+     ============================================================ */
+  var inpCnpj = document.getElementById('cnpj');
+  var boxCnpj = document.getElementById('cnpjbox');
+  var ultimoConsultado = '';
+
+  function soDigitos(s){ return (s||'').replace(/\D/g,''); }
+  function mascaraCnpj(v){
+    v = soDigitos(v).slice(0,14);
+    if(v.length > 12) return v.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2}).*/,'$1.$2.$3/$4-$5');
+    if(v.length > 8)  return v.replace(/^(\d{2})(\d{3})(\d{3})(\d{0,4})/,'$1.$2.$3/$4');
+    if(v.length > 5)  return v.replace(/^(\d{2})(\d{3})(\d{0,3})/,'$1.$2.$3');
+    if(v.length > 2)  return v.replace(/^(\d{2})(\d{0,3})/,'$1.$2');
+    return v;
+  }
+  function cnpjValido(c){
+    c = soDigitos(c);
+    if(c.length !== 14 || /^(\d)\1{13}$/.test(c)) return false;
+    var calc = function(base){
+      var pesos = base.length === 12 ? [5,4,3,2,9,8,7,6,5,4,3,2] : [6,5,4,3,2,9,8,7,6,5,4,3,2];
+      var soma = 0;
+      for(var i=0;i<base.length;i++) soma += parseInt(base[i],10) * pesos[i];
+      var r = soma % 11;
+      return r < 2 ? 0 : 11 - r;
+    };
+    var d1 = calc(c.slice(0,12));
+    var d2 = calc(c.slice(0,12) + d1);
+    return c === c.slice(0,12) + d1 + d2;
+  }
+  function boxHtml(classe, html){ boxCnpj.className = 'cnpjbox show ' + classe; boxCnpj.innerHTML = html; }
+  function comTimeout(url, ms){
+    return new Promise(function(resolve, reject){
+      var to = setTimeout(function(){ reject(new Error('timeout')); }, ms);
+      fetch(url, {headers:{'Accept':'application/json'}})
+        .then(function(r){ clearTimeout(to); r.ok ? r.json().then(resolve) : reject(new Error('http '+r.status)); })
+        .catch(function(e){ clearTimeout(to); reject(e); });
+    });
+  }
+  function normalizar(d){
+    if(d && d.cnpj !== undefined && d.descricao_situacao_cadastral !== undefined){
+      return { razao:d.razao_social||'', fantasia:d.nome_fantasia||'',
+        situacao:d.descricao_situacao_cadastral||'', abertura:d.data_inicio_atividade||'',
+        atividade:d.cnae_fiscal_descricao||'', porte:d.porte||'',
+        municipio:(d.municipio||'')+(d.uf?' / '+d.uf:''),
+        simples:d.opcao_pelo_simples===true?'Sim':(d.opcao_pelo_simples===false?'Não':''),
+        mei:d.opcao_pelo_mei===true?'Sim':'' };
+    }
+    if(d && d.estabelecimento){
+      var e = d.estabelecimento;
+      return { razao:d.razao_social||'', fantasia:e.nome_fantasia||'',
+        situacao:e.situacao_cadastral||'', abertura:e.data_inicio_atividade||'',
+        atividade:(e.atividade_principal&&e.atividade_principal.descricao)||'',
+        porte:(d.porte&&d.porte.descricao)||'',
+        municipio:((e.cidade&&e.cidade.nome)||'')+(e.estado&&e.estado.sigla?' / '+e.estado.sigla:''),
+        simples:d.simples?(d.simples.simples==='Sim'?'Sim':'Não'):'',
+        mei:d.simples&&d.simples.mei==='Sim'?'Sim':'' };
+    }
+    return null;
+  }
+  function dataBr(iso){
+    if(!iso || iso.length < 10) return iso || '';
+    var p = iso.slice(0,10).split('-');
+    return p.length === 3 ? p[2]+'/'+p[1]+'/'+p[0] : iso;
+  }
+  function consultarCnpj(c){
+    if(!CONSULTAR_CNPJ || c === ultimoConsultado) return;
+    ultimoConsultado = c; dadosReceita = null;
+    boxHtml('load','<span class="spin"></span>Consultando a Receita Federal...');
+    var fontes = ['https://brasilapi.com.br/api/cnpj/v1/'+c, 'https://publica.cnpj.ws/cnpj/'+c];
+    (function tenta(i){
+      if(i >= fontes.length){
+        boxHtml('warn','Não conseguimos consultar a Receita agora. Sem problema — o CNPJ foi registrado e seguimos normalmente.');
+        return;
+      }
+      comTimeout(fontes[i], 8000).then(function(json){
+        var d = normalizar(json);
+        if(!d || !d.razao) throw new Error('vazio');
+        dadosReceita = d;
+        var h = '<b>'+d.razao+'</b>';
+        if(d.fantasia)  h += '<div class="row"><span>Nome fantasia:</span><span>'+d.fantasia+'</span></div>';
+        if(d.situacao)  h += '<div class="row"><span>Situação:</span><span>'+d.situacao+'</span></div>';
+        if(d.abertura)  h += '<div class="row"><span>Aberta em:</span><span>'+dataBr(d.abertura)+'</span></div>';
+        if(d.atividade) h += '<div class="row"><span>Atividade:</span><span>'+d.atividade+'</span></div>';
+        if(d.municipio) h += '<div class="row"><span>Município:</span><span>'+d.municipio+'</span></div>';
+        if(d.simples)   h += '<div class="row"><span>Simples Nacional:</span><span>'+d.simples+'</span></div>';
+        boxHtml('ok', h);
+      }).catch(function(){ tenta(i+1); });
+    })(0);
+  }
+  if(inpCnpj){
+    inpCnpj.addEventListener('input', function(){
+      var pos = inpCnpj.value.length;
+      inpCnpj.value = mascaraCnpj(inpCnpj.value);
+      if(pos < inpCnpj.value.length) inpCnpj.setSelectionRange(inpCnpj.value.length, inpCnpj.value.length);
+      var c = soDigitos(inpCnpj.value);
+      if(c.length < 14){ boxCnpj.className='cnpjbox'; boxCnpj.innerHTML=''; ultimoConsultado=''; dadosReceita=null; return; }
+      if(!cnpjValido(c)){ boxHtml('warn','Esse CNPJ não passou na verificação do dígito. Confira os números.'); ultimoConsultado=''; return; }
+      consultarCnpj(c);
+    });
+    inpCnpj.addEventListener('blur', function(){
+      var c = soDigitos(inpCnpj.value);
+      if(c.length === 14 && cnpjValido(c)) consultarCnpj(c);
+    });
+  }
+
+  /* ============================================================
+     VALIDAÇÃO — só campos visíveis
+     ============================================================ */
+  function validaEtapa(n){
+    var sec = steps.filter(function(s){ return +s.dataset.step === n; })[0];
+    if(!sec) return true;
+    var primeiro = null;
+
+    Array.prototype.forEach.call(sec.querySelectorAll('.field'), function(f){
+      f.classList.remove('invalid');
+      if(!campoVisivel(f)) return;
+      var nome = f.dataset.name, ok = true;
+
+      if(f.dataset.req === '1'){
+        var range = f.querySelector('input[type=range]');
+        var grupo = f.querySelectorAll('input[type=radio],input[type=checkbox]');
+        if(range){
+          ok = range.dataset.tocado === '1';
+        }else if(grupo.length){
+          ok = f.querySelectorAll('input:checked').length > 0;
+        }else{
+          var el = f.querySelector('input,textarea,select');
+          ok = el && (el.value || '').trim().length >= 1;
+        }
+      }
+      if(ok && nome === 'cnpj'){
+        var vc = document.getElementById('cnpj').value.trim();
+        ok = !vc || cnpjValido(vc);   // opcional: só valida se algo foi digitado
+      }
+      if(ok && nome === 'email'){
+        var v = document.getElementById('email').value.trim();
+        ok = !v || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+      }
+      if(ok && (nome === 'nome' || nome === 'cidade'))
+        ok = document.getElementById(nome).value.trim().length >= 2;
+
+      if(!ok){ f.classList.add('invalid'); if(!primeiro) primeiro = f; }
+    });
+
+    if(primeiro){ primeiro.scrollIntoView({behavior:'smooth', block:'center'}); return false; }
+    return true;
+  }
+
+  /* ============================================================
+     NAVEGAÇÃO
+     ============================================================ */
+  function atualizarProgresso(){
+    var ativas = etapasAtivas();
+    var idx = ativas.indexOf(atual);
+    var pct;
+    if(atual >= 90) pct = 100;
+    else { pct = ativas.length ? Math.round((idx/ativas.length)*100) : 0; if(pct === 0) pct = 6; }
+    pbar.style.width = pct + '%';
+    ppct.textContent = pct + '%';
+    if(atual >= 99) pstep.textContent = 'Concluído';
+    else if(atual === 90) pstep.textContent = 'Resumo';
+    else pstep.textContent = 'Etapa ' + (idx+1) + ' de ' + ativas.length;
+  }
+  function proxima(n){
+    var seg = etapasAtivas().filter(function(s){ return s > n; });
+    return seg.length ? seg[0] : 90;
+  }
+  function anterior(n){
+    var ativas = etapasAtivas();
+    if(n === 90) return ativas[ativas.length-1] || 1;
+    var antes = ativas.filter(function(s){ return s < n; });
+    return antes.length ? antes[antes.length-1] : 1;
+  }
+  function mostra(n){
+    atual = n;
+    steps.forEach(function(s){ s.classList.toggle('active', +s.dataset.step === n); });
+    var ativas = etapasAtivas();
+    var ehUltima = n < 90 && ativas.indexOf(n) === ativas.length-1;
+    btnBack.style.display  = (n > 1 && n < 99) ? '' : 'none';
+    btnNext.style.display  = (n < 90) ? '' : 'none';
+    btnWa.style.display    = (n >= 90) ? '' : 'none';
+    copyWrap.style.display = (n >= 90) ? '' : 'none';
+    btnNext.textContent    = ehUltima ? 'Ver meu resumo' : 'Continuar';
+    atualizarProgresso();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  btnNext.addEventListener('click', function(){
+    if(!validaEtapa(atual)) return;
+    var prox = proxima(atual);
+    if(prox === 90) montarResumo();
+    mostra(prox);
+  });
+  btnBack.addEventListener('click', function(){ mostra(anterior(atual)); });
+
+  /* ============================================================
+     RESUMO
+     ============================================================ */
+  function coletar(){
+    var itens = [];
+    document.querySelectorAll('.field[data-name]').forEach(function(f){
+      if(!campoVisivel(f)) return;
+      var rot = f.dataset.resumo || f.dataset.name, valor = '';
+      var range = f.querySelector('input[type=range]');
+      var grupo = f.querySelectorAll('input[type=radio],input[type=checkbox]');
+      if(range){
+        valor = range.dataset.tocado === '1' ? textoSlider(range) : '';
+      }else if(grupo.length){
+        valor = Array.prototype.map.call(f.querySelectorAll('input:checked'), function(i){
+          return i.dataset.label || i.value; }).join(', ');
+      }else{
+        var el = f.querySelector('input,textarea,select');
+        valor = el ? (el.value||'').trim() : '';
+      }
+      if(valor) itens.push({campo:f.dataset.name, rotulo:rot, valor:valor});
+    });
+    return itens;
+  }
+
+  function montarResumo(){
+    var itens = coletar();
+    /* Mensagem que o cliente envia no WhatsApp. A primeira linha é a
+       saudação do stand — o backend ignora linhas sem "Rótulo: valor",
+       então ela não interfere no parser. */
+    var t = 'Olá! Preenchi o diagnóstico aqui no stand do ' + evento + '.\n\n';
+    t += '*DIAGNÓSTICO MERCABILIZA — ' + evento.toUpperCase() + '*\n───────────────\n';
+    itens.forEach(function(i){
+      t += '*' + i.rotulo + ':* ' + i.valor + '\n';
+      if(i.campo === 'cnpj' && dadosReceita){
+        t += '   _' + dadosReceita.razao + '_\n';
+        if(dadosReceita.situacao)  t += '   _Situação: ' + dadosReceita.situacao + '_\n';
+        if(dadosReceita.abertura)  t += '   _Aberta em: ' + dataBr(dadosReceita.abertura) + '_\n';
+        if(dadosReceita.atividade) t += '   _Atividade: ' + dadosReceita.atividade + '_\n';
+      }
+    });
+    t += '───────────────\n';
+    t += 'Evento: ' + evento + '\n';
+    if(consultor) t += 'Consultor: ' + consultor + '\n';
+    t += 'Respondido em ' + new Date().toLocaleString('pt-BR');
+    textoResumo = t;
+
+    preview.innerHTML = t
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*(.+?)\*/g,'<b>$1</b>')
+      .replace(/_(.+?)_/g,'<i>$1</i>');
+
+    btnWa.href = 'https://wa.me/' + destino + '?text=' + encodeURIComponent(t);
+  }
+
+  /* ============================================================
+     ENVIO — RD STATION CRM + WHATSAPP
+
+     Regra de ouro: nada aqui pode atrasar ou impedir a abertura do
+     WhatsApp. Por isso a chamada ao CRM é disparada em paralelo
+     (fetch com keepalive, sem await) e o window.open acontece ainda
+     dentro do gesto de clique — se aguardássemos a resposta da API,
+     o navegador trataria a abertura como pop-up e bloquearia.
+     ============================================================ */
+  var envioEmAndamento = false;   // trava contra duplo clique
+  var jaEnviadoAoCrm   = false;   // garante um único card por preenchimento
+
+  /* Monta o pacote enviado à Netlify Function.
+     - message   : o relatório exatamente como vai para o WhatsApp
+     - respostas : as respostas estruturadas (fonte mais confiável)
+     - receita   : o que a consulta à Receita Federal devolveu, se houve */
+  function payloadCrm(){
+    return {
+      message:   textoResumo,
+      respostas: coletar(),
+      receita:   dadosReceita,
+      consultor: consultor,
+      origem_evento: evento,   // vira o prefixo [Summit] no título do card
+      telefone:  telCliente,   // veio do ?c= do link do consultor
+      destino:   destino,
+      origemUrl: location.href,
+      enviadoEm: new Date().toISOString()
+    };
+  }
+
+  function enviarAoCrm(){
+    if(!CRM_ENDPOINT || jaEnviadoAoCrm) return;
+    jaEnviadoAoCrm = true;
+    try{
+      fetch(CRM_ENDPOINT, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payloadCrm()),
+        keepalive: true            // sobrevive à saída da página
+      })
+      .then(function(r){ return r.json().catch(function(){ return {}; }); })
+      .then(function(j){
+        if(j && j.success) console.log('[CRM] negociação criada:', j.deal_id);
+        else { console.warn('[CRM] não foi possível criar o card:', j); jaEnviadoAoCrm = false; }
+      })
+      .catch(function(e){ console.warn('[CRM] falha de rede:', e); jaEnviadoAoCrm = false; });
+    }catch(e){ jaEnviadoAoCrm = false; }
+  }
+
+  /* Webhook antigo (Power Automate/SharePoint) — segue funcionando se preenchido. */
+  function enviarWebhookLegado(){
+    if(!WEBHOOK_URL) return;
+    try{
+      var payload = JSON.stringify({respostas:coletar(), receita:dadosReceita,
+        consultor:consultor, enviadoEm:new Date().toISOString()});
+      if(navigator.sendBeacon){
+        navigator.sendBeacon(WEBHOOK_URL, new Blob([payload],{type:'application/json'}));
+      }else{
+        fetch(WEBHOOK_URL,{method:'POST',mode:'no-cors',keepalive:true,
+          headers:{'Content-Type':'application/json'},body:payload});
+      }
+    }catch(e){}
+  }
+
+  btnWa.addEventListener('click', function(ev){
+    ev.preventDefault();
+    if(envioEmAndamento) return;
+    envioEmAndamento = true;
+
+    if(!textoResumo) montarResumo();
+    var url = btnWa.getAttribute('href');
+    if(!url || url === '#') url = 'https://wa.me/' + destino + '?text=' + encodeURIComponent(textoResumo);
+
+    /* 1) dispara o CRM em paralelo (não aguarda a resposta) */
+    enviarAoCrm();
+    enviarWebhookLegado();
+
+    /* 2) abre o WhatsApp imediatamente, ainda no gesto do clique */
+    var aba = null;
+    try{ aba = window.open(url, '_blank'); }catch(e){}
+    if(!aba) window.location.href = url;   // pop-up bloqueado: navega na mesma aba
+
+    /* 3) feedback visual e bloqueio temporário do botão */
+    var rotulo = btnWa.textContent;
+    btnWa.textContent = 'Abrindo o WhatsApp...';
+    btnWa.style.pointerEvents = 'none';
+    btnWa.style.opacity = '.75';
+    setTimeout(function(){
+      btnWa.textContent = rotulo;
+      btnWa.style.pointerEvents = '';
+      btnWa.style.opacity = '';
+      envioEmAndamento = false;
+    }, 2500);
+
+    setTimeout(function(){ if(atual < 99) mostra(99); }, 600);
+  });
+
+  function copiar(texto, botao, msg){
+    var antes = botao.textContent;
+    var done = function(){ botao.textContent = msg || 'Copiado!';
+      setTimeout(function(){ botao.textContent = antes; }, 2200); };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(texto).then(done, fallback);
+    }else{ fallback(); }
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = texto; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); done(); }catch(e){}
+      document.body.removeChild(ta);
+    }
+  }
+  btnCopy.addEventListener('click', function(){
+    if(!textoResumo) montarResumo();
+    copiar(textoResumo.replace(/[*_]/g,''), this, 'Resumo copiado!');
+  });
+
+  aplicarCondicionais();
+  mostra(1);
+})();
+</script>
+</body>
+</html>

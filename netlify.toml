@@ -1,7 +1,34 @@
+# =============================================================================
+#  Netlify — Pré-diagnóstico Mercabiliza
+#  Site estático (index.html na raiz) + uma serverless function em Node.
+# =============================================================================
+
 [build]
+  # Nada para compilar: o site é o próprio HTML na raiz do repositório.
   publish = "."
   functions = "netlify/functions"
 
+[functions]
+  # esbuild deixa o cold start mais rápido; a função não tem dependências.
+  node_bundler = "esbuild"
+
+# Atalhos opcionais: além de /.netlify/functions/<nome>,
+# as funções também respondem em /api/<nome>.
+[[redirects]]
+  from = "/api/pre-diagnostico"
+  to = "/.netlify/functions/pre-diagnostico"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/evento-diagnostico"
+  to = "/.netlify/functions/evento-diagnostico"
+  status = 200
+  force = true
+
+# O formulário do evento é evento/index.html, servido em /evento pela própria
+# Netlify. Este redirect só garante que /evento (sem barra final) também abra,
+# o que evita 404 em QR code impresso.
 [[redirects]]
   from = "/evento"
   to = "/evento/index.html"
