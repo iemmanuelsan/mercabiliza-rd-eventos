@@ -1,0 +1,8 @@
+{
+  "name": "mercabiliza-rd-eventos",
+  "version": "1.0.0",
+  "description": "Captação Summit Netlify para RD Station CRM",
+  "scripts": {
+    "check": "node scripts/rd-crm-check.js"
+  }
+}

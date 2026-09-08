@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mercabiliza - Credenciamento & Diagnóstico Summit</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; max-width: 480px; width: 100%; padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    h1 { font-size: 1.5rem; margin-bottom: 8px; color: #38bdf8; }
+    p { font-size: 0.9rem; color: #94a3b8; margin-bottom: 24px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #cbd5e1; }
+    input, select { width: 100%; padding: 10px 14px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: #fff; font-size: 0.95rem; }
+    input:focus, select:focus { border-color: #38bdf8; outline: none; }
+    button { width: 100%; padding: 12px; background: #0284c7; color: #fff; font-weight: 700; border: none; border-radius: 6px; cursor: pointer; margin-top: 12px; font-size: 1rem; }
+    button:hover { background: #0369a1; }
+    .msg { margin-top: 16px; padding: 10px; border-radius: 6px; display: none; font-size: 0.9rem; text-align: center; }
+    .msg.ok { display: block; background: #064e3b; color: #6ee7b7; }
+    .msg.err { display: block; background: #7f1d1d; color: #fca5a5; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Mercabiliza Summit</h1>
+    <p>Preencha os dados da sua empresa para o diagnóstico exclusivo no evento.</p>
+    <form id="formEvento">
+      <div class="form-group">
+        <label>Nome Completo *</label>
+        <input type="text" name="nome" required placeholder="Seu nome">
+      </div>
+      <div class="form-group">
+        <label>E-mail Corporativo *</label>
+        <input type="email" name="email" required placeholder="seu@empresa.com.br">
+      </div>
+      <div class="form-group">
+        <label>WhatsApp / Telefone *</label>
+        <input type="tel" name="telefone" required placeholder="(11) 99999-9999">
+      </div>
+      <div class="form-group">
+        <label>Razão Social / Nome da Empresa *</label>
+        <input type="text" name="empresa" required placeholder="Nome da empresa">
+      </div>
+      <div class="form-group">
+        <label>Cargo</label>
+        <input type="text" name="cargo" placeholder="Ex: Sócio, Diretor, Gerente">
+      </div>
+      <div class="form-group">
+        <label>Faixa de Faturamento Mensal</label>
+        <select name="faturamento">
+          <option value="">Selecione...</option>
+          <option value="Até R$ 50k">Até R$ 50k</option>
+          <option value="R$ 50k a R$ 200k">R$ 50k a R$ 200k</option>
+          <option value="R$ 200k a R$ 500k">R$ 200k a R$ 500k</option>
+          <option value="Acima de R$ 500k">Acima de R$ 500k</option>
+        </select>
+      </div>
+      <button type="submit" id="btnSubmit">Enviar Diagnóstico</button>
+      <div id="statusMsg" class="msg"></div>
+    </form>
+  </div>
+  <script>
+    document.getElementById('formEvento').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmit');
+      const msg = document.getElementById('statusMsg');
+      btn.disabled = true;
+      btn.innerText = 'Enviando...';
+      msg.style.display = 'none';
+
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData.entries());
+
+      try {
+        const res = await fetch('/.netlify/functions/evento-diagnostico', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (res.ok) {
+          msg.className = 'msg ok';
+          msg.innerText = '✅ Diagnóstico enviado com sucesso!';
+          e.target.reset();
+        } else {
+          throw new Error();
+        }
+      } catch (err) {
+        msg.className = 'msg err';
+        msg.innerText = '⚠️ Ocorreu um erro ao enviar.';
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Enviar Diagnóstico';
+      }
+    });
+  </script>
+</body>
+</html>
