@@ -1,8 +1,8 @@
 ﻿[build]
-publish = "."
-functions = "netlify/functions"
+  publish = "."
+  functions = "netlify/functions"
 
 [[redirects]]
-from = "/evento"
-to = "/evento/index.html"
-status = 200
+  from = "/evento"
+  to = "/evento/index.html"
+  status = 200
